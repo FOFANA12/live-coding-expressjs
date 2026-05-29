@@ -25,5 +25,9 @@ export default class Project {
     );
     return { id, name, description };
   };
-  static delete = async (id) => {};
+  static delete = async (id) => {
+    const [rows] = await db.query("DELETE FROM projects WHERE id = ?", [id]);
+
+    return rows[0] ?? null;
+  };
 }

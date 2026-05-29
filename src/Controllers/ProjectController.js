@@ -47,7 +47,18 @@ export default class ProjectController {
     }
   };
 
-  destroy = (req, res, next) => {
-    res.json({ message: "Destroy" });
+  destroy = async (req, res, next) => {
+    try {
+      const projectId = req.params.id;
+      if (!projectId) {
+        console.log("Id est obligatoire");
+        return;
+      }
+
+      const project = await Project.delete(projectId);
+      res.status(StatusCodes.OK).json({ project});
+    } catch (error) {
+      next(error);
+    }
   };
 }
