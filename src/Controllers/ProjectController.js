@@ -1,11 +1,11 @@
 import Project from "../Models/Project.js";
 import { StatusCodes } from "http-status-codes";
-const { ENV } = process.env;
+import prisma from "../prisma.js";
 
 export default class ProjectController {
   index = async (req, res, next) => {
     try {
-      const projects = await Project.findAll();
+      const projects = await prisma.project.findMany();
       res.status(StatusCodes.OK).json({ projects });
     } catch (error) {
       next(error);
@@ -14,13 +14,17 @@ export default class ProjectController {
 
   show = async (req, res, next) => {
     try {
-      const projectId = req.params.id;
+      const projectId = Number(req.params.id);
       if (!projectId) {
         console.log("Id est obligatoire");
         return;
       }
 
-      const project = await Project.findById(projectId);
+      const project = await prisma.project.findUnique({
+        where: {
+          id: projectId,
+        },
+      });
       res.status(StatusCodes.OK).json({ project });
     } catch (error) {
       next(error);
@@ -29,8 +33,11 @@ export default class ProjectController {
 
   store = async (req, res, next) => {
     try {
-      const data = req.body;
-      const project = await Project.create(data);
+      const { name, description } = req.body;
+
+      const project = await prisma.project.create({
+        data: { name, description },
+      });
       res.status(StatusCodes.CREATED).json({ project });
     } catch (error) {
       next(error);
@@ -39,8 +46,18 @@ export default class ProjectController {
 
   update = async (req, res, next) => {
     try {
-      const data = req.body;
-      const project = await Project.update(req.params.id, data);
+      const { name, description } = req.body;
+      const projectId = Number(req.params.id);
+
+      const project = await prisma.project.update({
+        data: {
+          name,
+          description,
+        },
+        where: {
+          id: projectId,
+        },
+      });
       res.status(StatusCodes.OK).json({ project });
     } catch (error) {
       next(error);
@@ -49,14 +66,16 @@ export default class ProjectController {
 
   destroy = async (req, res, next) => {
     try {
-      const projectId = req.params.id;
+      const projectId = Number(req.params.id);
       if (!projectId) {
         console.log("Id est obligatoire");
         return;
       }
 
-      const result = await Project.delete(projectId);
-      res.status(StatusCodes.OK).json({ message: result > 0 ? 'Suppression OK' : 'Error de suppression'});
+      await prisma.project.delete({ where: { id: projectId } });
+      res.status(StatusCodes.OK).json({
+        message: "Suppression OK",
+      });
     } catch (error) {
       next(error);
     }
