@@ -1,4 +1,5 @@
 import Project from "../Models/Project.js";
+import { StatusCodes } from "http-status-codes";
 const { ENV } = process.env;
 
 export default class ProjectController {
@@ -13,25 +14,37 @@ export default class ProjectController {
 
   show = async (req, res, next) => {
     try {
-        const projectId = req.params.id;
-        if(!projectId){
-            console.log('Id est obligatoire');
-            return;
-        }
+      const projectId = req.params.id;
+      if (!projectId) {
+        console.log("Id est obligatoire");
+        return;
+      }
 
-        const project = await Project.findById(projectId);
-        res.json({ project });
+      const project = await Project.findById(projectId);
+      res.json({ project });
     } catch (error) {
-        
+      next(error);
     }
   };
 
-  store = (req, res, next) => {
-    res.json({ message: "Create" });
+  store = async (req, res, next) => {
+    try {
+      const data = req.body;
+      const project = await Project.create(data);
+      res.status(StatusCodes.CREATED).json({ project });
+    } catch (error) {
+      next(error);
+    }
   };
 
-  update = (req, res, next) => {
-    res.json({ message: "Update" });
+  update = async (req, res, next) => {
+    try {
+      const data = req.body;
+      const project = await Project.update(req.params.id, data);
+      res.status(StatusCodes.OK).json({ project });
+    } catch (error) {
+      next(error);
+    }
   };
 
   destroy = (req, res, next) => {
