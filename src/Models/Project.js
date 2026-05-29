@@ -28,6 +28,6 @@ export default class Project {
   static delete = async (id) => {
     const [rows] = await db.query("DELETE FROM projects WHERE id = ?", [id]);
 
-    return rows[0] ?? null;
+    return rows.affectedRows;
   };
 }

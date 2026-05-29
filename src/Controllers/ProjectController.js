@@ -55,8 +55,8 @@ export default class ProjectController {
         return;
       }
 
-      const project = await Project.delete(projectId);
-      res.status(StatusCodes.OK).json({ project});
+      const result = await Project.delete(projectId);
+      res.status(StatusCodes.OK).json({ message: result > 0 ? 'Suppression OK' : 'Error de suppression'});
     } catch (error) {
       next(error);
     }
