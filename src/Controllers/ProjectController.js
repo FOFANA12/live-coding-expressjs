@@ -1,21 +1,40 @@
+import Project from "../Models/Project.js";
+const { ENV } = process.env;
+
 export default class ProjectController {
-    index = (req, res, next) => {
-        res.json({message: "Index"})
+  index = async (req, res, next) => {
+    try {
+      const projects = await Project.findAll();
+      res.json({ projects });
+    } catch (error) {
+      next(error);
     }
+  };
 
-    show = (req, res, next) => {
-        res.json({message: "Show"})
-    }
+  show = async (req, res, next) => {
+    try {
+        const projectId = req.params.id;
+        if(!projectId){
+            console.log('Id est obligatoire');
+            return;
+        }
 
-    store = (req, res, next) => {
-        res.json({message: "Create"})
+        const project = await Project.findById(projectId);
+        res.json({ project });
+    } catch (error) {
+        
     }
+  };
 
-     update = (req, res, next) => {
-        res.json({message: "Update"})
-    }
+  store = (req, res, next) => {
+    res.json({ message: "Create" });
+  };
 
-     destroy = (req, res, next) => {
-        res.json({message: "Destroy"})
-    }
-};
+  update = (req, res, next) => {
+    res.json({ message: "Update" });
+  };
+
+  destroy = (req, res, next) => {
+    res.json({ message: "Destroy" });
+  };
+}
