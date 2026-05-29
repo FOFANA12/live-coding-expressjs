@@ -1,10 +1,11 @@
 import Task from "../Models/Task.js";
 import { StatusCodes } from "http-status-codes";
+import prisma from "../prisma.js";
 
 export default class TaskController {
   index = async (req, res, next) => {
     try {
-      const tasks = await Task.findAll();
+      const tasks = await prisma.task.findMany();
       res.status(StatusCodes.OK).json({ tasks });
     } catch (error) {
       next(error);
@@ -18,7 +19,9 @@ export default class TaskController {
         console.log("Id est obligatoire");
         return;
       }
-      const task = await Task.findById(taskId);
+      const task = await prisma.task.findUnique({
+        where: { id: Number(taskId) },
+      });
       res.status(StatusCodes.OK).json({ task });
     } catch (error) {
       next(error);
@@ -26,9 +29,15 @@ export default class TaskController {
   };
 
   store = async (req, res, next) => {
-    const data = req.body;
+    const { title, description, project_id: projectId } = req.body;
     try {
-      const task = await Task.create(data);
+      const task = await prisma.task.create({
+        data: {
+          title,
+          description,
+          projectId,
+        },
+      });
       res.status(StatusCodes.CREATED).json({ task });
     } catch (error) {
       next(error);
@@ -37,8 +46,15 @@ export default class TaskController {
 
   update = async (req, res, next) => {
     try {
-      const data = req.body;
-      const task = await Task.update(req.params.id, data);
+      const { title, description, project_id: projectId } = req.body;
+      const task = await prisma.task.update({
+        where: { id: Number(req.params.id) },
+        data: {
+          title,
+          description,
+          projectId,
+        },
+      });
       res.status(StatusCodes.OK).json({ task });
     } catch (error) {
       next(error);
@@ -53,12 +69,12 @@ export default class TaskController {
         return;
       }
 
-      const result = await Task.delete(taskId);
-      res
-        .status(StatusCodes.OK)
-        .json({
-          message: result > 0 ? "Suppression OK" : "Error de suppression",
-        });
+      const result = await prisma.task.delete({
+        where: {id: Number(taskId)}
+      });
+      res.status(StatusCodes.OK).json({
+        message: "Suppression OK",
+      });
     } catch (error) {
       next(error);
     }
