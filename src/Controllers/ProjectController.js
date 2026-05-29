@@ -6,7 +6,7 @@ export default class ProjectController {
   index = async (req, res, next) => {
     try {
       const projects = await Project.findAll();
-      res.json({ projects });
+      res.status(StatusCodes.OK).json({ projects });
     } catch (error) {
       next(error);
     }
@@ -21,7 +21,7 @@ export default class ProjectController {
       }
 
       const project = await Project.findById(projectId);
-      res.json({ project });
+      res.status(StatusCodes.OK).json({ project });
     } catch (error) {
       next(error);
     }
