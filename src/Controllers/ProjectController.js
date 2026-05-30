@@ -1,11 +1,18 @@
-import Project from "../Models/Project.js";
 import { StatusCodes } from "http-status-codes";
 import prisma from "../prisma.js";
 
 export default class ProjectController {
   index = async (req, res, next) => {
     try {
-      const projects = await prisma.project.findMany();
+      const projects = await prisma.project.findMany({
+        select: {
+            id: true,
+            name: true
+        },
+        orderBy: {
+            id: "desc"
+        }
+      });
       res.status(StatusCodes.OK).json({ projects });
     } catch (error) {
       next(error);
@@ -24,6 +31,7 @@ export default class ProjectController {
         where: {
           id: projectId,
         },
+        include: {tasks: true}
       });
       res.status(StatusCodes.OK).json({ project });
     } catch (error) {
